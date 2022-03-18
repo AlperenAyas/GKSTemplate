@@ -35,6 +35,8 @@ namespace GKS.WebApi.Controllers
         public async Task<IActionResult> Get(Guid id)
         {
             var result = await _mediator.Send(new GetHotelByIdQueryRequest() { Id=id });
+            if (!result.Success)
+                return BadRequest(result);
             return Ok(result);
         }
         [HttpGet("[action]")]
@@ -42,6 +44,8 @@ namespace GKS.WebApi.Controllers
         public async Task<IActionResult> GetForComboBox()
         {
             var result = await _mediator.Send(new GetHotelsForComboBoxQueryRequest());
+            if (!result.Success)
+                return BadRequest(result);
             return Ok(result);
         }
         [HttpPost]
@@ -51,7 +55,7 @@ namespace GKS.WebApi.Controllers
         {
             var result = await _mediator.Send(request);
             if(!result.Success)
-                return BadRequest("Operation Failed");
+                return BadRequest(result);
             return Created("",result);
         }
         [HttpPut]
