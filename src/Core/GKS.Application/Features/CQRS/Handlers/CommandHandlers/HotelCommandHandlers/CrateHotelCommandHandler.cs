@@ -36,7 +36,7 @@ namespace GKS.Application.Features.CQRS.Handlers.CommandHandlers.HotelCommandHan
             var dataExist = await _uow.GetQueryRepository<Hotel>().GetByFilterAsync(x => x.Name == request.Name);
 
             
-            if (dataExist != null)
+            if (dataExist == null)
             {
                 var data = await _uow.GetCommandRepository<Hotel>().AddAsync(mappedRequest);
 
