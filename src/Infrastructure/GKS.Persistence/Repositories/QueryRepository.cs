@@ -1,11 +1,15 @@
-﻿using GKS.Application.Abstrations.Repositories;
+﻿using Dapper;
+using GKS.Application.Abstrations.Repositories;
 using GKS.Domain.Entities.Common;
 using GKS.Domain.Queries.Markup;
 using GKS.Persistence.Contexts;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Npgsql;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -17,10 +21,12 @@ namespace GKS.Persistence.Repositories
     public class QueryRepository<T> : IQueryRepository<T> where T : BaseEntity
     {
         private readonly GKSContext _context;
+        private readonly IConfiguration _configuration;
 
-        public QueryRepository(GKSContext context)
+        public QueryRepository(GKSContext context, IConfiguration configuration)
         {
             _context = context;
+            _configuration = configuration;
         }
 
         public DbSet<T> Table => _context.Set<T>();
@@ -75,28 +81,20 @@ namespace GKS.Persistence.Repositories
             return await operationData.FirstOrDefaultAsync(filter);
         }
 
-        public async Task<List<TQuery>> RawQueryAsync<TQuery>(string query) where TQuery : IQuery
+        public async Task<IEnumerable<TQuery>> RawQueryAsync<TQuery>(string query) where TQuery : IQuery
         {
-            using (var command = _context.Database.GetDbConnection().CreateCommand())
+
+            using(var connection = new NpgsqlConnection(_configuration.GetConnectionString("Gks")))
             {
-                List<TQuery> entities = new List<TQuery>();
+                await connection.OpenAsync();
 
-                command.CommandText = query;
-                command.CommandType = System.Data.CommandType.Text;
+                IEnumerable<TQuery> data = await connection.QueryAsync<TQuery>(query);
 
-                await _context.Database.OpenConnectionAsync();
+                await connection.CloseAsync();
 
-                using (var reader = command.ExecuteReader())
-                {
-
-                    entities = DataReaderMapToList<TQuery>(reader);
-
-                }
-
-                await _context.Database.CloseConnectionAsync();
-
-                return entities;
+                return data;
             }
+            
         }
         /// <summary>
         /// Sql Query Data Reader and Mapper

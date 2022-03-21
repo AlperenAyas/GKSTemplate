@@ -38,7 +38,7 @@ namespace GKS.Application.Features.CQRS.Handlers.CommandHandlers.HotelCommandHan
 
             await _uow.SaveChangesAsync();
 
-            await _cacheService.DeleteCacheValueLikeAsync("Hotelskj");
+            await _cacheService.DeleteCacheValueLikeAsync("Hotels");
 
             return new TResult<DeleteHotelResponse>(null, "Veri silinmiştir", true, 100);
         }

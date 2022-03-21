@@ -4,6 +4,7 @@ using GKS.Domain.Entities.Common;
 using GKS.Persistence.Contexts;
 using GKS.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,10 +16,12 @@ namespace GKS.Persistence.UnitOfWork
     public class Uow : IUow
     {
         private readonly GKSContext _context;
+        private readonly IConfiguration _configuration;
 
-        public Uow(GKSContext context)
+        public Uow(GKSContext context, IConfiguration configuration)
         {
             _context = context;
+            _configuration = configuration;
         }
 
         public ICommandRepository<T> GetCommandRepository<T>() where T : BaseEntity
@@ -28,7 +31,7 @@ namespace GKS.Persistence.UnitOfWork
 
         public IQueryRepository<T> GetQueryRepository<T>() where T : BaseEntity
         {
-            return new QueryRepository<T>(_context);
+            return new QueryRepository<T>(_context,_configuration);
         }
 
         public void SaveChanges()

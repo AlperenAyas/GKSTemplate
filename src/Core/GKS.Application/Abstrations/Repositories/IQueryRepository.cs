@@ -20,7 +20,7 @@ namespace GKS.Application.Abstrations.Repositories
         #region Asyncronics
         Task<IQueryable<T>> GetAllByFilterAsync(Expression<Func<T, bool>> filter = null, Expression<Func<T, object>>[] includes = null, QueryTrackingBehavior isTracking = QueryTrackingBehavior.NoTracking);
         Task<T> GetByFilterAsync(Expression<Func<T, bool>> filter, Expression<Func<T, object>>[] includes = null, QueryTrackingBehavior isTracking = QueryTrackingBehavior.NoTracking);
-        Task<List<TQuery>> RawQueryAsync<TQuery>(string query) where TQuery : IQuery;
+        Task<IEnumerable<TQuery>> RawQueryAsync<TQuery>(string query) where TQuery : IQuery;
         #endregion
 
         
